@@ -217,6 +217,10 @@ const getScriptUrl = async (template: Template, modules: Module[]) => {
 
       for (const module of modules) {
         for (const key of template.fileTypes) {
+          if (!sumModule[key]) {
+            continue;
+          }
+
           sumModule[key] = uniq([
             ...sumModule[key],
             ...(module.files[key] ?? [])
@@ -225,7 +229,7 @@ const getScriptUrl = async (template: Template, modules: Module[]) => {
       }
 
       for (const key of template.fileTypes) {
-        if (!sumModule[key].length) {
+        if (!sumModule[key]?.length) {
           continue;
         }
 

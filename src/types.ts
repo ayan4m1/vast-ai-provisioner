@@ -54,8 +54,8 @@ export type CreateInstanceResponse = {
 };
 
 export type ProvisionOptions = {
-  maxHourlyCost?: number;
-  maxPorts?: number;
-  minVram?: number;
+  maxHourlyCost: number;
+  maxPorts: number;
+  minVram: number;
   template?: string;
 };
