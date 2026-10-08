@@ -20,7 +20,7 @@ Additionally, there are several modules available to add to the base ComfyUI ins
 
 ## Requirements
 
-- Node >=22
+- Node >=24
 
 ## Usage
 
