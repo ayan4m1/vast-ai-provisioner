@@ -16,6 +16,7 @@ Additionally, there are several modules available to add to the base ComfyUI ins
 - Upscalers: A collection of high quality 2x and 4x upscalers
 - Utility Nodes: A set of Comfy nodes to make building workflows easier
 - WAN2.2: A powerful text-to-video or image-to-video model
+- Ideogram 4: A newer model with state of the art design and placement abilities
 
 ## Requirements
 
