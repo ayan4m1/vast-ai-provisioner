@@ -121,6 +121,10 @@ const chooseModules = async (template: Template) => {
           module.totalSize = 0;
 
           for (const [, urls] of Object.entries(module.files)) {
+            if (!urls) {
+              continue;
+            }
+
             for (const url of urls) {
               const size = await getUrlSize(url);
 
@@ -167,7 +171,7 @@ const getOffers = async (options: ProvisionOptions) => {
           rentable: { eq: true },
           rented: { eq: false },
           num_gpus: { eq: 1 },
-          gpu_ram: { gte: options.minVram * 1024 },
+          gpu_ram: { gte: (options.minVram ?? 16) * 1024 },
           inet_down: { gte: 1000 },
           direct_port_count: { lte: options.maxPorts },
           limit: 25,
@@ -194,6 +198,10 @@ const getOffers = async (options: ProvisionOptions) => {
 
 const getScriptUrl = async (template: Template, modules: Module[]) => {
   try {
+    if (!template.script) {
+      throw new Error('No template script!');
+    }
+
     const scriptPath = join(getPackageJsonPath(), 'scripts', template.script);
     if (!existsSync(scriptPath)) {
       throw new Error(`Could not find script at ${scriptPath}!`);
@@ -230,6 +238,10 @@ const getScriptUrl = async (template: Template, modules: Module[]) => {
 
     const postData = new FormData();
 
+    if (!process.env.PASTEBIN_API_KEY) {
+      throw new Error('Must provide PASTEBIN_API_KEY env var!');
+    }
+
     postData.append('api_dev_key', process.env.PASTEBIN_API_KEY);
     postData.append('api_option', 'paste');
     postData.append('api_paste_code', script);
@@ -265,7 +277,9 @@ const formatOffers = (options: ProvisionOptions, offers: Offer[]) => {
 
   return offers
     .filter((offer) => !rtx5000Regex.test(offer.gpu_name))
-    .filter((offer) => offer.search.totalHour <= options.maxHourlyCost)
+    .filter(
+      (offer) => offer.search.totalHour <= (options.maxHourlyCost ?? 1000)
+    )
     .map((offer) => {
       // convert GB to bytes, then format as rounded GB
       const vramGb = filesize(offer.gpu_ram * 1e6, {

@@ -2,9 +2,11 @@
   "compilerOptions": {
     "declaration": true,
     "esModuleInterop": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "outDir": "./lib"
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "./lib",
+    "rootDir": ".",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"]

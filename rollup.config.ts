@@ -1,6 +1,6 @@
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
-import autoExternal from 'rollup-plugin-auto-external';
+import externals from 'rollup-plugin-node-externals';
 
 export default {
   input: './src/index.ts',
@@ -8,11 +8,5 @@ export default {
     file: './lib/index.js',
     format: 'esm'
   },
-  plugins: [
-    autoExternal({
-      builtins: true
-    }),
-    typescript(),
-    terser()
-  ]
+  plugins: [externals(), typescript(), terser()]
 };

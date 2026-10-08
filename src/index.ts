@@ -1,16 +1,22 @@
-import 'dotenv/config';
+try {
+  process.loadEnvFile();
+} catch (error) {
+  if (error instanceof Error) {
+    console.error(error.message);
+  }
+}
+
 import { program } from '@commander-js/extra-typings';
 
-// eslint-disable-next-line import-x/no-unresolved
 import { getPackageInfo, provision } from './utils.js';
 
 try {
   const { name, version, description } = await getPackageInfo();
 
   await program
-    .name(name)
-    .version(version)
-    .description(description)
+    .name(name ?? 'vast-ai-provisioner')
+    .version(version ?? '0.1.0')
+    .description(description ?? '')
     .argument('[template]', 'Specify template to deploy')
     .option(
       '--min-vram <gb>',
