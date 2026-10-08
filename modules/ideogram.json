@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/module.schema.json",
+  "name": "Ideogram 4",
+  "template": "ComfyUI",
+  "files": {
+    "diffusion_models": [
+      "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/main/diffusion_models/ideogram4_fp8_scaled.safetensors",
+      "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/main/diffusion_models/ideogram4_unconditional_fp8_scaled.safetensors"
+    ],
+    "text_encoder_models": [
+      "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/main/text_encoders/qwen3vl_8b_fp8_scaled.safetensors"
+    ],
+    "vae_models": [
+      "https://huggingface.co/Comfy-Org/Ideogram-4/resolve/main/vae/flux2-vae.safetensors"
+    ],
+    "workflows": [
+      "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/workflows/ideogram-4.json"
+    ]
+  }
+}
