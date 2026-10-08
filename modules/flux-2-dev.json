@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/module.schema.json",
+  "name": "Flux 2.D",
+  "template": "ComfyUI",
+  "files": {
+    "diffusion_models": [
+      "https://huggingface.co/gguf-org/flux2-dev-gguf/resolve/main/flux2-dev-iq4_xs.gguf"
+    ],
+    "text_encoder_models": [
+      "https://huggingface.co/gguf-org/flux2-dev-gguf/resolve/main/cow-mistral3-small-iq4_xs.gguf"
+    ],
+    "vae_models": [
+      "https://huggingface.co/gguf-org/flux2-dev-gguf/resolve/main/pig_flux2_vae_fp32-f16.gguf"
+    ],
+    "nodes": ["https://github.com/city96/ComfyUI-GGUF"],
+    "workflows": [
+      "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/workflows/flux2-gguf.json"
+    ]
+  }
+}
