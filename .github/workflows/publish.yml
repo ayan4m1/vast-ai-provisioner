@@ -3,6 +3,7 @@ on:
   push:
     branches: ['main']
 permissions:
+  id-token: write
   contents: write
 jobs:
   publish:
@@ -17,4 +18,3 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
