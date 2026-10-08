@@ -9,6 +9,7 @@ Additionally, there are several modules available to add to the base ComfyUI ins
 
 - Animagine: Animagine XL 4.0, a best-in-class anime model
 - Flux Dev: Adds Flux 1.Dev and ControlNet
+- Flux 2 Dev: Adds Flux 2.Dev
 - Flux Kontext: Adds Flux Kontext for image editing
 - Pixel Art: Adds Pixel Art LoRAs for SDXL
 - SDXL: Adds SDXL and ControlNet
