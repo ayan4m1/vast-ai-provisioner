@@ -33,6 +33,8 @@ OR
 npx vast-ai-provisioner -h
 ```
 
+Template is an optional argument - if you do not provide it, the application will ask you which one you want to deploy.
+
 ## Development
 
 ```sh
@@ -41,5 +43,3 @@ yarn install
 yarn run build
 node lib/index.js <template>
 ```
-
-Template is an optional argument - if you do not provide it, the application will ask you which one you want to deploy.
