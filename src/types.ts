@@ -48,6 +48,17 @@ export type Template = {
   tag?: string;
 };
 
+export type CreateInstanceRequest = {
+  cancel_unavail: boolean;
+  disk: number;
+  extra_env: Record<string, string>;
+  image?: string;
+  runtype?: RunType;
+  target_state: 'running';
+  template_hash_id?: string;
+  vm: boolean;
+};
+
 export type CreateInstanceResponse = {
   new_contract?: number;
   success: boolean;

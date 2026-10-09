@@ -8,7 +8,8 @@ try {
 
 import { program } from '@commander-js/extra-typings';
 
-import { getPackageInfo, provision } from './utils.js';
+import { getPackageInfo } from './package.js';
+import { provision } from './provision.js';
 
 try {
   const { name, version, description } = await getPackageInfo();
