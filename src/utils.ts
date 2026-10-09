@@ -404,6 +404,10 @@ It is YOUR responsibility to make sure that it has been stopped or destroyed cor
       request.runtype = templateInfo.runType;
     }
 
+    if (!process.env.VAST_API_KEY) {
+      throw new Error('Missing VAST_API_KEY environment variable!');
+    }
+
     const deployResponse = await fetch(`${baseApiUrl}/asks/${choice.id}`, {
       method: 'PUT',
       headers: {
