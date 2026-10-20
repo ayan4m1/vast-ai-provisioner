@@ -3,10 +3,16 @@ import { filesize } from 'filesize';
 import { sprintf } from 'sprintf-js';
 import { interpolateRgb } from 'd3-interpolate';
 import { formatDistanceToNow, fromUnixTime } from 'date-fns';
-import { checkbox, confirm, select } from '@inquirer/prompts';
+import { checkbox, confirm, password, select } from '@inquirer/prompts';
 
 import { Module, Offer, ProvisionOptions, Template } from './types.js';
-import { loadModules, loadTemplate, loadTemplates } from './catalog.js';
+import { validateHfToken } from './api/huggingface.js';
+import {
+  fetchModuleSizes,
+  loadModules,
+  loadTemplate,
+  loadTemplates
+} from './catalog.js';
 
 const rtx5000Regex = /rtx\s*5[0-9]{3}/i;
 
@@ -33,21 +39,77 @@ export const chooseTemplate = async (
   return loadTemplate(chosenTemplate);
 };
 
-export const chooseModules = async (template: Template): Promise<Module[]> => {
+/**
+ * Uses HF_TOKEN from the environment, or prompts for one when a gated module
+ * was chosen. Returns undefined if the user continues without a token.
+ */
+const resolveHfToken = async (
+  modules: Module[]
+): Promise<string | undefined> => {
+  const gatedModules = modules.filter((module) => module.gated);
+
+  if (process.env.HF_TOKEN || !gatedModules.length) {
+    return process.env.HF_TOKEN || undefined;
+  }
+
+  const names = gatedModules.map((module) => module.name).join(', ');
+
+  for (;;) {
+    const token = (
+      await password({
+        message: `Enter a Hugging Face token (required for gated models: ${names})`,
+        mask: '*'
+      })
+    ).trim();
+
+    if (token && (await validateHfToken(token))) {
+      return token;
+    }
+
+    const retry = await confirm({
+      message: token
+        ? 'That token was rejected by Hugging Face. Try again?'
+        : 'No token entered. Try again?',
+      default: true
+    });
+
+    if (!retry) {
+      console.warn(
+        `Continuing without a token, downloads for ${names} will fail!`
+      );
+      return undefined;
+    }
+  }
+};
+
+export type ModuleSelection = {
+  modules: Module[];
+  hfToken?: string;
+};
+
+export const chooseModules = async (
+  template: Template
+): Promise<ModuleSelection> => {
   const modules = await loadModules(template);
 
   if (!modules.length) {
-    return [];
+    return { modules: [] };
   }
 
-  return checkbox<Module>({
+  const selected = await checkbox<Module>({
     loop: false,
     message: 'Please choose the modules you would like to include.',
     choices: modules.map((module) => ({
-      name: `${module.name} (${filesize(module.totalSize)})`,
+      name: module.gated ? `${module.name} (gated)` : module.name,
       value: module
     }))
   });
+  const hfToken = await resolveHfToken(selected);
+
+  return {
+    modules: await fetchModuleSizes(selected, hfToken),
+    hfToken
+  };
 };
 
 const formatOffers = (options: ProvisionOptions, offers: Offer[]) => {
@@ -114,6 +176,7 @@ export type DeploymentSummary = {
   modules: Module[];
   offer: Offer;
   diskSizeBytes: number;
+  hfToken?: string;
   hourlyCosts: { running: number; stopped: number };
 };
 
@@ -122,6 +185,7 @@ export const confirmDeployment = ({
   modules,
   offer,
   diskSizeBytes,
+  hfToken,
   hourlyCosts
 }: DeploymentSummary): Promise<boolean> => {
   const hourlyCost = `$${hourlyCosts.running.toFixed(3)}/hr`;
@@ -131,6 +195,7 @@ Template: ${template.name}
 Modules:
 ${modules.map((module) => `  * ${module.name} (${filesize(module.totalSize)})`).join('\n')}
 Disk Size: ${filesize(diskSizeBytes)}
+HF Token: ${hfToken ? 'provided' : 'none'}
 
 Are you SURE you want create the instance?
 

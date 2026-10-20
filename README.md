@@ -35,6 +35,10 @@ npx vast-ai-provisioner -h
 
 Template is an optional argument - if you do not provide it, the application will ask you which one you want to deploy.
 
+### Gated models
+
+Some modules (e.g. Flux 3 Klein) download gated models from Hugging Face. Accept the model's license on huggingface.co first, then either set `HF_TOKEN` in your `.env` file or enter a token when prompted. The token is validated locally and passed to the instance as an environment variable; it is never written into the provisioning script.
+
 ## Development
 
 ```sh

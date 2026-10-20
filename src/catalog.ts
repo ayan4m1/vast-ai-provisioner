@@ -4,6 +4,7 @@ import { readdir, readFile } from 'fs/promises';
 
 import { Module, Template } from './types.js';
 import { getPackageRoot } from './package.js';
+import { getHfAuthHeaders } from './api/huggingface.js';
 
 const getTemplatesPath = (): string => join(getPackageRoot(), 'templates');
 
@@ -11,8 +12,16 @@ const getModulesPath = (): string => join(getPackageRoot(), 'modules');
 
 const getScriptsPath = (): string => join(getPackageRoot(), 'scripts');
 
-const getUrlSize = async (url: string): Promise<number> => {
-  const res = await fetch(url);
+const getUrlSize = async (url: string, hfToken?: string): Promise<number> => {
+  const res = await fetch(url, {
+    method: 'HEAD',
+    headers: getHfAuthHeaders(url, hfToken)
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not size ${url} (HTTP ${res.status}), is it gated?`);
+    return 0;
+  }
 
   return parseInt(res.headers.get('Content-Length') ?? '0', 10);
 };
@@ -58,38 +67,48 @@ export const loadTemplate = async (name: string): Promise<Template> => {
 };
 
 /**
- * Loads the modules compatible with a template and fetches the size of each
- * of their files.
+ * Loads the modules compatible with a template.
  */
 export const loadModules = async (template: Template): Promise<Module[]> => {
   console.log('Reading module JSON from ./modules');
 
   const moduleMap = await parseJsonInDir<Module>(getModulesPath());
 
+  return Array.from(moduleMap.values()).filter(
+    (module) => module.template === template.name
+  );
+};
+
+/**
+ * Fetches the size of each file in the given modules, authenticating to
+ * Hugging Face when a token is provided.
+ */
+export const fetchModuleSizes = async (
+  modules: Module[],
+  hfToken?: string
+): Promise<Module[]> => {
   console.log('Fetching file sizes...');
 
   return Promise.all(
-    Array.from(moduleMap.values())
-      .filter((module) => module.template === template.name)
-      .map(async (module) => {
-        module.fileSizes = new Map<string, number>();
-        module.totalSize = 0;
+    modules.map(async (module) => {
+      module.fileSizes = new Map<string, number>();
+      module.totalSize = 0;
 
-        for (const [, urls] of Object.entries(module.files)) {
-          if (!urls) {
-            continue;
-          }
-
-          for (const url of urls) {
-            const size = await getUrlSize(url);
-
-            module.fileSizes.set(url, size);
-            module.totalSize += size;
-          }
+      for (const [, urls] of Object.entries(module.files)) {
+        if (!urls) {
+          continue;
         }
 
-        return module;
-      })
+        for (const url of urls) {
+          const size = await getUrlSize(url, hfToken);
+
+          module.fileSizes.set(url, size);
+          module.totalSize += size;
+        }
+      }
+
+      return module;
+    })
   );
 };
 

@@ -14,6 +14,10 @@
       "description": "The long description for the module",
       "type": "string"
     },
+    "gated": {
+      "description": "Requires a Hugging Face token to download",
+      "type": "boolean"
+    },
     "template": {
       "description": "The template that this module is meant for",
       "type": "string",

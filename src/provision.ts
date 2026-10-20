@@ -61,7 +61,7 @@ const registerShutdownHandlers = (instanceId?: number): void => {
 export const provision = async (options: ProvisionOptions): Promise<void> => {
   try {
     const template = await chooseTemplate(options);
-    const modules = await chooseModules(template);
+    const { modules, hfToken } = await chooseModules(template);
     const offers = await searchOffers(options);
     const offer = await chooseOffer(options, offers);
 
@@ -71,6 +71,7 @@ export const provision = async (options: ProvisionOptions): Promise<void> => {
       modules,
       offer,
       diskSizeBytes,
+      hfToken,
       hourlyCosts: calculateHourlyCosts(offer, diskSizeBytes)
     });
 
@@ -85,6 +86,11 @@ export const provision = async (options: ProvisionOptions): Promise<void> => {
     const environmentVars: Record<string, string> = {
       ...template.environment
     };
+
+    // set after the template defaults so a user-provided token always wins
+    if (hfToken) {
+      environmentVars.HF_TOKEN = hfToken;
+    }
 
     if (template.script) {
       environmentVars.PROVISIONER_SCRIPT = await uploadScript(

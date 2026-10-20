@@ -30,6 +30,7 @@ export type ModuleDependencies = Partial<Record<string, string[]>>;
 export type Module = {
   description: string;
   files: ModuleDependencies;
+  gated?: boolean;
   name: string;
   template: string;
   fileSizes: Map<string, number>;
