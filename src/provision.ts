@@ -20,11 +20,14 @@ import {
 } from './prompts.js';
 
 const registerShutdownHandlers = (instanceId?: number): void => {
-  console.log(
-    '\nPress Ctrl-D to stop the instance, or Ctrl-C to destroy it...'
-  );
-  process.stdin.resume();
-  process.on('SIGQUIT', async () => {
+  let handling = false;
+
+  const stop = async (): Promise<void> => {
+    if (handling) {
+      return;
+    }
+    handling = true;
+
     if (!instanceId) {
       console.error('No instance to stop! Exiting...');
       return process.exit(0);
@@ -39,8 +42,14 @@ const registerShutdownHandlers = (instanceId?: number): void => {
       console.error(error);
       process.exit(1);
     }
-  });
-  process.on('SIGINT', async () => {
+  };
+
+  const destroy = async (): Promise<void> => {
+    if (handling) {
+      return;
+    }
+    handling = true;
+
     if (!instanceId) {
       console.error('No instance to destroy! Exiting...');
       return process.exit(0);
@@ -55,7 +64,25 @@ const registerShutdownHandlers = (instanceId?: number): void => {
       console.error(error);
       process.exit(1);
     }
+  };
+
+  console.log('\nPress S to stop the instance, or Ctrl-C to destroy it...');
+
+  // raw mode delivers single keypresses, and Ctrl-C arrives as data, not SIGINT
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+  }
+  process.stdin.setEncoding('utf8');
+  process.stdin.resume();
+  process.stdin.on('data', (key: string) => {
+    if (key === 's' || key === 'S') {
+      void stop();
+    } else if (key === '\u0003') {
+      void destroy();
+    }
   });
+  // fallback for non-TTY stdin, where Ctrl-C is still delivered as a signal
+  process.on('SIGINT', () => void destroy());
 };
 
 export const provision = async (options: ProvisionOptions): Promise<void> => {
