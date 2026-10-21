@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/module.schema.json",
+  "name": "WAN2.2 (14B)",
+  "template": "ComfyUI",
+  "files": {
+    "nodes": ["https://github.com/city96/ComfyUI-GGUF"],
+    "workflows": [
+      "https://raw.githubusercontent.com/ayan4m1/vast-ai-provisioner/main/workflows/wan2.2-14b-img2vid.json"
+    ],
+    "vae_models": [
+      "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/vae/wan2.2_vae.safetensors"
+    ],
+    "text_encoder_models": [
+      "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+    ],
+    "diffusion_models": [
+      "https://huggingface.co/QuantStack/Wan2.2-T2V-A14B-GGUF/resolve/main/HighNoise/Wan2.2-T2V-A14B-HighNoise-Q5_K_M.gguf",
+      "https://huggingface.co/QuantStack/Wan2.2-T2V-A14B-GGUF/resolve/main/LowNoise/Wan2.2-T2V-A14B-LowNoise-Q5_K_M.gguf"
+    ]
+  }
+}
